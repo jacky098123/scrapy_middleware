@@ -100,17 +100,19 @@ class ProxyVerifier(CommonHandler):
         for row in result_set:
             self.verify_hidemyass(row)
 
-    def do_gen():
+    def do_gen(self):
         sql = "select concat('http://', ip, ':', port) from proxy_hidemyass where kxflag in ('good', 'moderate') "
         result_set = self.db_conn.Query(sql)
         proxy_list = [i[0] for i in result_set]
         self.SaveList('proxy_list.txt', proxy_list)
 
     def run(self):
-        self.do_hidemyass()
-
         if self.opt.gen:
             self.do_gen()
+            sys.exit()
+
+        self.do_hidemyass()
+
 
 if __name__ == '__main__':
     btlog_init('log_verifier.log', logfile=True, console=True, level='DEBUG')
