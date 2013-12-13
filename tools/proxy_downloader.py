@@ -8,6 +8,7 @@ import cookielib
 import time
 import traceback
 from optparse import OptionParser
+from datetime import datetime
 
 from scrapy.selector import HtmlXPathSelector
 from bs4 import BeautifulSoup
@@ -35,6 +36,9 @@ port varchar(16) default '',
 country varchar(64) default '',
 type varchar(16) default '',
 anonymity varchar(32) default '',
+kxflag varchar(16) default '' comment 'good,moderate,pool,bad',
+create_time timestamp default '0000-00-00 00:00:00',
+update_time timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 primary key(id),
 key idx_u(ip, port)
 ) engine=InnoDb, charset='utf8';
@@ -121,9 +125,6 @@ class ProxyDownloader(CommonHandler):
             return text[0]
 
         def process_tag(html):
-            print '======'
-            print html
-            print '======'
             # process <span/> # TODO
 
             # process <span> </span>
@@ -190,13 +191,14 @@ class ProxyDownloader(CommonHandler):
 
     def do_hidemyass(self):
         url_list = [
-#            "http://hidemyass.com/proxy-list/1",
+            "http://hidemyass.com/proxy-list/1",
             "http://hidemyass.com/proxy-list/2",
         ]
         for url in url_list:
             proxy_list = self.do_url(url, self._parse_hidemyass)
             for proxy in proxy_list:
                 print proxy
+                proxy['create_time'] = datetime.now()
                 self.db_conn.Upsert('proxy_hidemyass', proxy, ['ip', 'port'])
 
     def do_proxy_org(self):
