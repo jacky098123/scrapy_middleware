@@ -216,6 +216,6 @@ class ProxyDownloader(CommonHandler):
         self.do_proxy_org()
 
 if __name__ == '__main__':
-    btlog_init(logfile=False, console=True)
+    btlog_init('log_download.log', logfile=True, console=True)
     d = ProxyDownloader()
     d.run()
