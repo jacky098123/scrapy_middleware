@@ -90,7 +90,7 @@ class ProxyVerifier(CommonHandler):
         self.db_conn.Execute(sql)
 
         if self.opt.full:
-            sql = "select * from proxy_hidemyass where type='HTTP' "
+            sql = "select * from proxy_hidemyass where type='HTTP' and kxflag in ('good', 'moderate', 'pool')"
         else:
             sql = "select * from proxy_hidemyass where type='HTTP' and length(kxflag) = 0"
         result_set = self.db_conn.QueryDict(sql)
