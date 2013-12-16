@@ -198,7 +198,8 @@ class ProxyDownloader(CommonHandler):
             proxy_list = self.do_url(url, self._parse_hidemyass)
             for proxy in proxy_list:
                 print proxy
-                proxy['create_time'] = datetime.now()
+                proxy['kxflag']         = ''
+                proxy['create_time']    = datetime.now()
                 self.db_conn.Upsert('proxy_hidemyass', proxy, ['ip', 'port'])
 
     def do_proxy_org(self):
