@@ -1,3 +1,6 @@
 *.bak
 *.log
+*.log.*
 *.txt
+*pyc
+*swp

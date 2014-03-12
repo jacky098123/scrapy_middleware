@@ -17,6 +17,8 @@ from utils.common_handler import CommonHandler
 from utils.btlog import btlog_init
 from db.mysqlv6 import MySQLOperator
 
+from baidu_common import BaiduCommon
+
 DB_CONF = {
     "host"  : "192.168.0.57",
     "user"  : "product_w",
@@ -68,17 +70,21 @@ class ProxyVerifier(CommonHandler):
         for i in range(10):
             time.sleep(1)
             try:
-                html = urllib2.urlopen("http://www.baidu.com/", timeout=10).read()
+                url = BaiduCommon.random_request()
+                print url
+                html = urllib2.urlopen(url, timeout=3).read()
                 if len(html) > 100:
-                    succeed_count += 1
+                    parse_dict = BaiduCommon.parse(html)
+                    if parse_dict['valid_flag']:
+                        succeed_count += 1
             except Exception, e:
                 logging.warn("error: %s" % str(e))
         kxflag = ''
         if succeed_count == 0:
             kxflag = 'bad'
-        elif succeed_count < 3:
+        elif succeed_count < 4:
             kxflag = 'pool'
-        elif succeed_count < 7:
+        elif succeed_count < 9:
             kxflag = 'moderate'
         else:
             kxflag = 'good'
@@ -91,6 +97,7 @@ class ProxyVerifier(CommonHandler):
 
         if self.opt.full:
             sql = "select * from proxy_hidemyass where type='HTTP' and kxflag in ('good', 'moderate', 'pool')"
+            sql = "select * from proxy_hidemyass where type='HTTP' and country='China' and kxflag in ('good', 'moderate')"
         else:
             sql = "select * from proxy_hidemyass where type='HTTP' and length(kxflag) = 0"
         result_set = self.db_conn.QueryDict(sql)
