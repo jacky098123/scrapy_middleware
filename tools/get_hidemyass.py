@@ -18,32 +18,7 @@ from utils.common_handler import CommonHandler
 from utils.btlog import btlog_init
 from db.mysqlv6 import MySQLOperator
 
-DB_CONF = {
-    "host"  : "192.168.0.57",
-    "user"  : "product_w",
-    "passwd": "kooxootest",
-    "database"  : "proxy",
-    "port"      : 3306,
-    "charset"   : "utf8"
-}
-
-'''
-drop table if exists proxy_hidemyass;
-create table proxy_hidemyass (
-id int auto_increment,
-ip varchar(64) default '',
-port varchar(16) default '',
-country varchar(64) default '',
-type varchar(16) default '',
-anonymity varchar(32) default '',
-kxflag varchar(16) default '' comment 'good,moderate,pool,bad',
-create_time timestamp default '0000-00-00 00:00:00',
-update_time timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-primary key(id),
-key idx_u(ip, port)
-) engine=InnoDb, charset='utf8';
-
-'''
+from config import *
 
 class ProxyDownloader(CommonHandler):
     def __init__(self,):
@@ -202,19 +177,9 @@ class ProxyDownloader(CommonHandler):
                 proxy['create_time']    = datetime.now()
                 self.db_conn.Upsert('proxy_hidemyass', proxy, ['ip', 'port'])
 
-    def do_proxy_org(self):
-        pass
-
-    def _baidu_callback(self, html_data):
-        logging.info("baidu callback len: %d" % len(html_data))
-        return []
-
-    def do_baidu(self):
-        self.do_url('http://www.baidu.com/', self._baidu_callback)
 
     def run(self):
         self.do_hidemyass()
-        self.do_proxy_org()
 
 if __name__ == '__main__':
     btlog_init('log_download.log', logfile=True, console=True)

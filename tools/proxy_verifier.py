@@ -7,6 +7,7 @@ import urllib2
 import cookielib
 import time
 import traceback
+from datetime import datetime
 from optparse import OptionParser
 
 from scrapy.selector import HtmlXPathSelector
@@ -18,23 +19,20 @@ from utils.btlog import btlog_init
 from db.mysqlv6 import MySQLOperator
 
 from baidu_common import BaiduCommon
+from config import *
 
-DB_CONF = {
-    "host"  : "192.168.0.57",
-    "user"  : "product_w",
-    "passwd": "kooxootest",
-    "database"  : "proxy",
-    "port"      : 3306,
-    "charset"   : "utf8"
-}
 
 class ProxyVerifier(CommonHandler):
     def __init__(self):
         self.crawled_proxys = []
 
         parser          = OptionParser()
-        parser.add_option("--full", action="store_true")
         parser.add_option("--gen", action="store_true")
+        parser.add_option("--flag", action="store_true")
+        parser.add_option("--kxflag", action="store", default='moderate')
+        parser.add_option("--hidemyass", action="store_true")
+        parser.add_option("--free_proxy_list", action="store_true")
+        parser.add_option("--freeproxylists", action="store_true")
         (self.opt, others) = parser.parse_args()
 
         self.db_conn = MySQLOperator()
@@ -42,25 +40,18 @@ class ProxyVerifier(CommonHandler):
             logging.error("db error")
             sys.exit()
 
-    def _update_hidemyass(self, id, kxflag):
-        sql = "update proxy_hidemyass set kxflag=%s where id=" + str(id)
-        logging.info("%s, [%s]" % (sql, kxflag))
-        self.db_conn.Execute(sql, [kxflag,])
+    def real_verify(self, ip, port):
+        ip  = self.ToString(ip)
+        if len(ip.split('.')) != 4:
+            logging.warn("ip is bad: %s" % (ip))
+            return 'bad'
 
-    def verify_hidemyass(self, row):
-        ip_items = row['ip'].split('.')
-        if len(ip_items) != 4:
-            logging.warn("ip is bad: %s, id: %d" % (row['ip'], row['id']))
-            self._update_hidemyass(row['id'], 'bad')
-            return
+        port = self.ToString(port)
+        if not port.isdigit():
+            logging.warn("port is bad: %s" % (port))
+            return 'bad'
 
-        tmp_port = self.ToString(row['port'])
-        if not tmp_port.isdigit():
-            logging.warn("port is bad: %s, id: %d" % (row['port'], row['id']))
-            self._update_hidemyass(row['id'], 'bad')
-            return
-
-        tmp_proxy = "http://%s:%s" % (row['ip'], row['port'])
+        tmp_proxy = "http://%s:%s" % (ip, port)
         proxy_support = urllib2.ProxyHandler({'http': tmp_proxy})
         opener =urllib2.build_opener(proxy_support, urllib2.HTTPCookieProcessor(cookielib.CookieJar()))
         opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:25.0) Gecko/20100101 Firefox/25.0')]
@@ -88,16 +79,15 @@ class ProxyVerifier(CommonHandler):
             kxflag = 'moderate'
         else:
             kxflag = 'good'
-        logging.info("ip: %s, port: %s, succeed_count: %d" % (row['ip'], row['port'], succeed_count))
-        self._update_hidemyass(row['id'], kxflag)
+        logging.info("ip: %s, port: %s, succeed_count: %d" % (ip, port, succeed_count))
+        return kxflag
 
     def do_hidemyass(self):
         sql = "update proxy_hidemyass set kxflag='bad' where kxflag='' and type <> 'HTTP' "
         self.db_conn.Execute(sql)
 
-        if self.opt.full:
-            sql = "select * from proxy_hidemyass where type='HTTP' and kxflag in ('good', 'moderate', 'pool')"
-            sql = "select * from proxy_hidemyass where type='HTTP' and country='China' and kxflag in ('good', 'moderate')"
+        if self.opt.flag:
+            sql = "select * from proxy_hidemyass where type='HTTP' and kxflag = '%s'" % self.opt.kxflag
         else:
             sql = "select * from proxy_hidemyass where type='HTTP' and length(kxflag) = 0"
         result_set = self.db_conn.QueryDict(sql)
@@ -105,21 +95,94 @@ class ProxyVerifier(CommonHandler):
         logging.info("result_set len: %d" % len(result_set))
 
         for row in result_set:
-            self.verify_hidemyass(row)
+            kxflag = self.real_verify(row['ip'], row['port'])
+            sql = "update proxy_hidemyass set kxflag='%s' where id=%d" % (kxflag, row['id'])
+            logging.info(sql)
+            self.db_conn.Execute(sql)
 
-    def do_gen(self):
-        sql = "select concat('http://', ip, ':', port) from proxy_hidemyass where kxflag in ('good', 'moderate') "
-        result_set = self.db_conn.Query(sql)
-        proxy_list = [i[0] for i in result_set]
-        self.SaveList('proxy_list.txt', proxy_list)
+    def do_free_proxy_list(self):
+        sql = "update proxy_free_proxy_list set kxflag='bad' where kxflag='' and https='yes'"
+        self.db_conn.Execute(sql)
+
+        if self.opt.flag:
+            sql = "select * from proxy_free_proxy_list where https='no' and kxflag = '%s'" % self.opt.kxflag
+        else:
+            sql = "select * from proxy_free_proxy_list where https='no' and length(kxflag) = 0"
+        result_set = self.db_conn.QueryDict(sql)
+        logging.info(sql)
+        logging.info("result_set len: %d" % len(result_set))
+
+        for row in result_set:
+            kxflag = self.real_verify(row['ip'], row['port'])
+            sql = "update proxy_free_proxy_list set kxflag='%s' where id=%d" % (kxflag, row['id'])
+            logging.info(sql)
+            self.db_conn.Execute(sql)
+
+    def do_freeproxylists(self):
+        if self.opt.flag:
+            sql = "select * from proxy_freeproxylists where kxflag='%s'" % self.opt.kxflag
+        else:
+            sql = "select * from proxy_freeproxylists where length(kxflag) = 0"
+        result_set = self.db_conn.QueryDict(sql)
+        logging.info(sql)
+        logging.info("result_set len: %d" % len(result_set))
+
+        for row in result_set:
+            kxflag = self.real_verify(row['ip'], row['port'])
+            sql = "update proxy_freeproxylists set kxflag='%s' where id=%d" % (kxflag, row['id'])
+            logging.info(sql)
+            self.db_conn.Execute(sql)
+
+    def gen(self):
+        if not os.access('data', os.F_OK):
+            os.mkdir('data')
+
+        full_list   = []
+        for kxflag in ('good', 'moderate'):
+            # hidemyass
+            sql = "select concat('http://', ip, ':', port) from proxy_hidemyass where kxflag = '%s'" % kxflag
+            result_set = self.db_conn.Query(sql)
+            logging.info(sql)
+            logging.info("result_set len: %d" % len(result_set))
+            proxy_list = [i[0] for i in result_set]
+
+            # free_proxy_list
+            sql = "select concat('http://', ip, ':', port) from proxy_free_proxy_list where kxflag = '%s'" % kxflag
+            result_set = self.db_conn.Query(sql)
+            logging.info(sql)
+            logging.info("result_set len: %d" % len(result_set))
+            for row in result_set:
+                if row[0] not in proxy_list:
+                    proxy_list.append(row[0])
+            logging.info("final result_set len: %d" % len(proxy_list))
+
+            # freeproxylists
+            sql = "select concat('http://', ip, ':', port) from proxy_freeproxylists where kxflag = '%s'" % kxflag
+            result_set = self.db_conn.Query(sql)
+            logging.info(sql)
+            logging.info("result_set len: %d" % len(result_set))
+            for row in result_set:
+                if row[0] not in proxy_list:
+                    proxy_list.append(row[0])
+            logging.info("final result_set len: %d" % len(proxy_list))
+
+            file_name = 'data/proxy_list.%s.%s.txt' % (datetime.now().strftime('%Y-%m-%d'), kxflag)
+            self.SaveList(file_name, proxy_list)
+            full_list.extend(proxy_list)
+
+        self.SaveList('data/proxy_list.%s.txt' % datetime.now().strftime('%Y-%m-%d'), full_list)
 
     def run(self):
         if self.opt.gen:
-            self.do_gen()
+            self.gen()
             sys.exit()
 
-        self.do_hidemyass()
-
+        if self.opt.hidemyass:
+            self.do_hidemyass()
+        if self.opt.free_proxy_list:
+            self.do_free_proxy_list()
+        if self.opt.freeproxylists:
+            self.do_freeproxylists()
 
 if __name__ == '__main__':
     btlog_init('log_verifier.log', logfile=True, console=True, level='DEBUG')

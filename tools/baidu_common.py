@@ -125,11 +125,14 @@ class BaiduCommon(CommonHandler, HttpClient):
 
     @staticmethod
     def random_request():
+#        url = "http://www.baidu.com/baidu?wd=%E9%87%8D%E5%BA%86%E6%9C%BA%E7%A5%A8&ie=utf-8&usm=1&rn=100"
+#        url = "http://www.baidu.com/s?ie=utf-8&mod=0&isid=F3B6D39EEF328045&pstg=0&wd=%E9%87%8D%E5%BA%86%E6%9C%BA%E7%A5%A8&ie=utf-8&tn=baiduhome_pg&f=8&bs=%E9%87%8D%E5%BA%86%E6%9C%BA%E7%A5%A8&rsv_bp=1&rsv_spt=1&inputT=0&rsv_sid=1463_5451_5223_4261_4759_5516&f4s=1&_cr1=15995&rn=100"
+
         keyword = random.choice(BaiduCommon.KEYWORD_LIST)
         url = "http://www.baidu.com/s?ie=utf-8&mod=0&isid=F3B6D39EEF328045&pstg=0&wd=%s&ie=utf-8&tn=baiduhome_pg&f=8&rn=100" % urllib.quote_plus(keyword)
         return url
 
-    def test(self, p=False):
+    def test_parse(self, p=False):
         html_data = self.LoadFile(self.TEST_FILE)
         data_dict   = BaiduCommon.parse(html_data)
         if p:
@@ -137,12 +140,10 @@ class BaiduCommon(CommonHandler, HttpClient):
                 print k, v
 
     def fetch_file(self):
-        import urllib
-        url = "http://www.baidu.com/baidu?wd=%E9%87%8D%E5%BA%86%E6%9C%BA%E7%A5%A8&ie=utf-8&usm=1&rn=100"
-        url = "http://www.baidu.com/s?ie=utf-8&mod=0&isid=F3B6D39EEF328045&pstg=0&wd=%E9%87%8D%E5%BA%86%E6%9C%BA%E7%A5%A8&ie=utf-8&tn=baiduhome_pg&f=8&bs=%E9%87%8D%E5%BA%86%E6%9C%BA%E7%A5%A8&rsv_bp=1&rsv_spt=1&inputT=0&rsv_sid=1463_5451_5223_4261_4759_5516&f4s=1&_cr1=15995&rn=100"
+        url = BaiduCommon.random_request()
         urllib.urlretrieve(url, self.TEST_FILE)
 
 if __name__ == '__main__':
     b   = BaiduCommon()
-#    b.fetch_file()
-    b.test(True)
+    b.fetch_file()
+    b.test_parse(True)
