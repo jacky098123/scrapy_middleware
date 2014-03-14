@@ -11,7 +11,6 @@ from datetime import datetime
 from optparse import OptionParser
 
 from scrapy.selector import HtmlXPathSelector
-from bs4 import BeautifulSoup
 
 sys.path.append('/home/yangrq/projects/pycore')
 from utils.common_handler import CommonHandler
