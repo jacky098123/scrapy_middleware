@@ -171,6 +171,7 @@ class ProxyVerifier(CommonHandler):
             full_list.extend(proxy_list)
 
         self.SaveList('data/proxy_list.%s.txt' % datetime.now().strftime('%Y-%m-%d'), full_list)
+        self.SaveList('data/proxy_list.txt', full_list)
 
     def run(self):
         if self.opt.gen:
