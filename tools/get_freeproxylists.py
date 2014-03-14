@@ -60,13 +60,18 @@ class ProxyDownloader(CommonHandler):
         logging.info("[%s] ==> [%s]" % (url, f))
         return f
 
+    '''
+    ! IMPORTANT !
+    change Cookie from firefox each time
+    '''
     def _crawl_url(self, url):
         logging.info("_crawl_url ")
         content = ""
         request = urllib2.Request(
                 url     = url,
                 headers = {'Content-Type':'application/x-www-form-urlencoded','charset':'UTF-8',
-                        'Cookie': "hl=en; pv=16; userno=20140312-007118; from=direct; __utma=251962462.1159599063.1394607954.1394607954.1394614002.2; __utmc=251962462; __utmz=251962462.1394607954.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __atuvc=15%7C11; __utmv=251962462.United%20States; __utmb=251962462.28.10.1394614002",
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0',
+                        'Cookie': "hl=en; pv=25; userno=20140312-007118; from=direct; __utma=251962462.1159599063.1394607954.1394695216.1394776146.5; __utmz=251962462.1394607954.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __atuvc=25%7C11; __utmv=251962462.United%20States; __utmc=251962462; __utmb=251962462.6.10.1394776146",
                 }
             )
 

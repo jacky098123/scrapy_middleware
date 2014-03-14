@@ -28,8 +28,7 @@ class ProxyVerifier(CommonHandler):
 
         parser          = OptionParser()
         parser.add_option("--gen", action="store_true")
-        parser.add_option("--flag", action="store_true")
-        parser.add_option("--kxflag", action="store", default='moderate')
+        parser.add_option("--flag", action="store", default='')
         parser.add_option("--hidemyass", action="store_true")
         parser.add_option("--free_proxy_list", action="store_true")
         parser.add_option("--freeproxylists", action="store_true")
@@ -73,7 +72,7 @@ class ProxyVerifier(CommonHandler):
         kxflag = ''
         if succeed_count == 0:
             kxflag = 'bad'
-        elif succeed_count < 4:
+        elif succeed_count < 6:
             kxflag = 'pool'
         elif succeed_count < 9:
             kxflag = 'moderate'
@@ -87,7 +86,7 @@ class ProxyVerifier(CommonHandler):
         self.db_conn.Execute(sql)
 
         if self.opt.flag:
-            sql = "select * from proxy_hidemyass where type='HTTP' and kxflag = '%s'" % self.opt.kxflag
+            sql = "select * from proxy_hidemyass where type='HTTP' and kxflag = '%s'" % self.opt.flag
         else:
             sql = "select * from proxy_hidemyass where type='HTTP' and length(kxflag) = 0"
         result_set = self.db_conn.QueryDict(sql)
@@ -105,7 +104,7 @@ class ProxyVerifier(CommonHandler):
         self.db_conn.Execute(sql)
 
         if self.opt.flag:
-            sql = "select * from proxy_free_proxy_list where https='no' and kxflag = '%s'" % self.opt.kxflag
+            sql = "select * from proxy_free_proxy_list where https='no' and kxflag = '%s'" % self.opt.flag
         else:
             sql = "select * from proxy_free_proxy_list where https='no' and length(kxflag) = 0"
         result_set = self.db_conn.QueryDict(sql)
@@ -120,7 +119,7 @@ class ProxyVerifier(CommonHandler):
 
     def do_freeproxylists(self):
         if self.opt.flag:
-            sql = "select * from proxy_freeproxylists where kxflag='%s'" % self.opt.kxflag
+            sql = "select * from proxy_freeproxylists where kxflag='%s'" % self.opt.flag
         else:
             sql = "select * from proxy_freeproxylists where length(kxflag) = 0"
         result_set = self.db_conn.QueryDict(sql)
