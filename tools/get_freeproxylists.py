@@ -71,7 +71,7 @@ class ProxyDownloader(CommonHandler):
                 url     = url,
                 headers = {'Content-Type':'application/x-www-form-urlencoded','charset':'UTF-8',
                         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0',
-                        'Cookie': "hl=en; pv=25; userno=20140312-007118; from=direct; __utma=251962462.1159599063.1394607954.1394695216.1394776146.5; __utmz=251962462.1394607954.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __atuvc=25%7C11; __utmv=251962462.United%20States; __utmc=251962462; __utmb=251962462.6.10.1394776146",
+                        'Cookie': "hl=en; pv=27; userno=20140312-007118; from=direct; __utma=251962462.1159599063.1394607954.1394776146.1395199012.6; __utmz=251962462.1394607954.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __atuvc=26%7C11%2C1%7C12; __utmv=251962462.United%20States; __utmb=251962462.2.10.1395199012; __utmc=251962462",
                 }
             )
 

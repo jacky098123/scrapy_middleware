@@ -88,38 +88,44 @@ class BaiduCommon(CommonHandler, HttpClient):
         sem_selectors = hxs.select(".//*[@id='content_left']/table[contains(@class,'EC_mr15')]")
         parse_dict['sem_count']         = len(sem_selectors) / 2
 
-        ding_selectors = hxs.select(".//*[@id='content_left']/div[contains(@class,'result-op ')]")
-        if len(ding_selectors) > 0:
-            parse_dict['ding_flag']      = 1
-            parse_dict['ding_pos']      = parse_dict['sem_count'] + 1
-
-        seo_domain_list = hxs.select(".//*[@id='content_left']/div[contains(@class,'result ')]/div/span[@class='g']/text()").extract()
-        if len(seo_domain_list) > 0:
-            idx = 0
-            for domain in seo_domain_list:
-                domain = domain.lower()
-                domain = domain.split('/')[0]
-                if domain.find('kuxun.') >= 0:
-                    if not parse_dict.has_key('kuxun_rank'):
-                        parse_dict['kuxun_rank'] = idx
-                elif domain.find('ctrip.') >= 0:
-                    if not parse_dict.has_key('ctrip_rank'):
-                        parse_dict['ctrip_rank'] = idx
-                elif domain.find('qunar.') >= 0:
-                    if not parse_dict.has_key('qunar_rank'):
-                        parse_dict['qunar_rank'] = idx
-                elif domain.find('17u.') >= 0:
-                    if not parse_dict.has_key('17u_rank'):
-                        parse_dict['17u_rank']  = idx
-                elif domain.find('daodao.') >= 0:
-                    if not parse_dict.has_key('daodao_rank'):
-                        parse_dict['daodao_rank'] = idx
-                elif domain.find('elong.') >= 0:
-                    if not parse_dict.has_key('elong_rank'):
-                        parse_dict['elong_rank'] = idx
-                elif domain.find('zhuna.') >= 0:
-                    if not parse_dict.has_key('zhuna_rank'):
-                        parse_dict['zhuna_rank'] = idx
+        # parse ALADING and SEO
+        result_selectors = hxs.select(".//*[@id='content_left']/div[starts-with(@class,'result')]")
+        if len(result_selectors) > 0:
+            idx = 1
+            for result_selector in result_selectors:
+                result_class = result_selector.select("@class").extract()
+                if len(result_class) > 0:
+                    result_class = result_class[0]
+                    if result_class.startswith('result-op'):
+                        if not parse_dict.has_key('ding_flag'): # ALADING already set alading
+                            parse_dict['ding_flag']     = 1
+                            parse_dict['ding_pos']      = idx
+                    elif result_class.startswith('result c-container'): # SEO
+                        domain_list = result_selector.select(".//div/span[@class='g']/text()").extract()
+                        if len(domain_list) > 0:
+                            domain = domain_list[0].lower()
+                            domain = domain.split('/')[0]
+                            if domain.find('kuxun.') >= 0:
+                                if not parse_dict.has_key('kuxun_rank'):
+                                    parse_dict['kuxun_rank'] = idx
+                            elif domain.find('ctrip.') >= 0:
+                                if not parse_dict.has_key('ctrip_rank'):
+                                    parse_dict['ctrip_rank'] = idx
+                            elif domain.find('qunar.') >= 0:
+                                if not parse_dict.has_key('qunar_rank'):
+                                    parse_dict['qunar_rank'] = idx
+                            elif domain.find('17u.') >= 0:
+                                if not parse_dict.has_key('17u_rank'):
+                                    parse_dict['17u_rank']  = idx
+                            elif domain.find('daodao.') >= 0:
+                                if not parse_dict.has_key('daodao_rank'):
+                                    parse_dict['daodao_rank'] = idx
+                            elif domain.find('elong.') >= 0:
+                                if not parse_dict.has_key('elong_rank'):
+                                    parse_dict['elong_rank'] = idx
+                            elif domain.find('zhuna.') >= 0:
+                                if not parse_dict.has_key('zhuna_rank'):
+                                    parse_dict['zhuna_rank'] = idx
                 idx += 1
         return parse_dict
 
@@ -145,5 +151,5 @@ class BaiduCommon(CommonHandler, HttpClient):
 
 if __name__ == '__main__':
     b   = BaiduCommon()
-    b.fetch_file()
+#    b.fetch_file()
     b.test_parse(True)
