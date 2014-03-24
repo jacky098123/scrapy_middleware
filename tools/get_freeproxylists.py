@@ -71,7 +71,7 @@ class ProxyDownloader(CommonHandler):
                 url     = url,
                 headers = {'Content-Type':'application/x-www-form-urlencoded','charset':'UTF-8',
                         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0',
-                        'Cookie': "hl=en; pv=27; userno=20140312-007118; from=direct; __utma=251962462.1159599063.1394607954.1394776146.1395199012.6; __utmz=251962462.1394607954.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __atuvc=26%7C11%2C1%7C12; __utmv=251962462.United%20States; __utmb=251962462.2.10.1395199012; __utmc=251962462",
+                        'Cookie': "hl=en; pv=33; userno=20140312-007118; from=direct; __utma=251962462.1159599063.1394607954.1395371643.1395640681.9; __utmz=251962462.1394607954.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __atuvc=26%7C11%2C6%7C12%2C1%7C13; __utmv=251962462.United%20States; __utmb=251962462.2.10.1395640681; __utmc=251962462",
                 }
             )
 
@@ -93,7 +93,7 @@ class ProxyDownloader(CommonHandler):
         return content
 
     def do_freeproxylists(self):
-        for idx in range(3):
+        for idx in range(5):
             url = "http://www.freeproxylists.net/?pr=HTTP&page=%d" % (idx+1)
             logging.info("crawling: %s" % url)
             if self.opt.cache:

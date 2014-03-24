@@ -168,11 +168,15 @@ class ProxyDownloader(CommonHandler):
         url_list = [
             "http://hidemyass.com/proxy-list/1",
             "http://hidemyass.com/proxy-list/2",
+            "http://hidemyass.com/proxy-list/3",
+            "http://hidemyass.com/proxy-list/4",
+            "http://hidemyass.com/proxy-list/5",
         ]
         for url in url_list:
             proxy_list = self.do_url(url, self._parse_hidemyass)
+            logging.info("count: %d for url: %s" % (len(proxy_list), url))
             for proxy in proxy_list:
-                print proxy
+                logging.info("proxy: %s" % str(proxy))
                 proxy['kxflag']         = ''
                 proxy['create_time']    = datetime.now()
                 self.db_conn.Upsert('proxy_hidemyass', proxy, ['ip', 'port'])

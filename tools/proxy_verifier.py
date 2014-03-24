@@ -57,7 +57,7 @@ class ProxyVerifier(CommonHandler):
 
         succeed_count = 0
         for i in range(10):
-            time.sleep(1)
+            time.sleep(0.2)
             try:
                 url = BaiduCommon.random_request()
                 print url
