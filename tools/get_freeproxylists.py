@@ -71,7 +71,7 @@ class ProxyDownloader(CommonHandler):
                 url     = url,
                 headers = {'Content-Type':'application/x-www-form-urlencoded','charset':'UTF-8',
                         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0',
-                        'Cookie': "hl=en; pv=34; userno=20140312-007118; from=direct; __utma=251962462.1159599063.1394607954.1395371643.1395640681.9; __utmz=251962462.1394607954.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __atuvc=26%7C11%2C6%7C12%2C2%7C13; __utmv=251962462.United%20States; __utmc=251962462",
+                        'Cookie': "hl=en; pv=57; userno=20140312-007118; from=direct; __utma=251962462.1159599063.1394607954.1396340903.1397006368.14; __utmz=251962462.1394607954.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __atuvc=26%7C11%2C6%7C12%2C4%7C13%2C19%7C14%2C3%7C15; __utmv=251962462.United%20States; visited=2014%2F04%2F09+10%3A19%3A26; __utmb=251962462.6.10.1397006368; __utmc=251962462",
                 }
             )
 
@@ -82,9 +82,9 @@ class ProxyDownloader(CommonHandler):
                     content = o.read()
             except Exception, e:
                 logging.warn("e str: %s" % str(e))
-            if len(content) > 100:
+            if len(content) > 2000:
                 break
-            time.sleep(3)
+            time.sleep(1)
 
         if len(content) > 0:
             f = self._url2file(url)
@@ -94,6 +94,7 @@ class ProxyDownloader(CommonHandler):
 
     def do_freeproxylists(self):
         for idx in range(10):
+#        for idx in (1,):
             url = "http://www.freeproxylists.net/?pr=HTTP&page=%d" % (idx+1)
             logging.info("crawling: %s" % url)
             if self.opt.cache:
