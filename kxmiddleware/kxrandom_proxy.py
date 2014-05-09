@@ -56,13 +56,13 @@ class KxRandomProxyMiddleware(object):
         if response.status != 200:
             proxy = request.meta['proxy']
             log.msg('KxRandomProxy response remove proxy <%s>, %d proxies left' % (proxy, len(self.proxies)-1))
-            try: self.proxies.remove(proxy)
-            except ValueError: pass
+#            try: self.proxies.remove(proxy)
+#            except ValueError: pass
         return response
 
     def process_exception(self, request, exception, spider):
         log.msg('KxRandomProxy process_exception ----------')
         proxy = request.meta['proxy']
         log.msg('Removing failed proxy <%s>, %d proxies left' % (proxy, len(self.proxies)-1))
-        try: self.proxies.remove(proxy)
-        except ValueError: pass
+#        try: self.proxies.remove(proxy)
+#        except ValueError: pass
