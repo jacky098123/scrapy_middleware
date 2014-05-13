@@ -94,7 +94,7 @@ class ProxyDownloader(CommonHandler):
             logging.warn("find data error")
             return
 
-        logging.info("count: %d for url: %s" % (len(tr_selector), url))
+        logging.info("count: %d for url: %s" % (len(tr_selectors), url))
         for selector in tr_selectors:
             data_list = selector.select(".//td/text()").extract()
             db_data             = {}

@@ -25,7 +25,7 @@ class ProxyDownloader(CommonHandler):
         self.crawled_proxys = []
 
         parser          = OptionParser()
-        parser.add_option("--proxy", action="store", default="http://127.0.0.1:8087")
+        parser.add_option("--proxy", action="store", default="http://127.0.0.1:8087") # 66.35.68.145:8089
         parser.add_option("--try_times", action="store", default="5")
         parser.add_option("--cache", action="store_true")
         (self.opt, others) = parser.parse_args()

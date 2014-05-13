@@ -151,5 +151,5 @@ class BaiduCommon(CommonHandler, HttpClient):
 
 if __name__ == '__main__':
     b   = BaiduCommon()
-#    b.fetch_file()
+    b.fetch_file()
     b.test_parse(True)
