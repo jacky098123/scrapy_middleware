@@ -80,12 +80,14 @@ class ProxyVerifier(CommonHandler):
         logging.info("ip: %s, port: %s, succeed_count: %d" % (ip, port, succeed_count))
         return kxflag
 
-    def do_hidemyass(self):
+    def do_hidemyass(self, flag=None):
         sql = "update proxy_hidemyass set kxflag='bad' where kxflag='' and type <> 'HTTP' "
         self.db_conn.Execute(sql)
 
         if self.opt.flag:
             sql = "select * from proxy_hidemyass where type='HTTP' and kxflag = '%s'" % self.opt.flag
+        elif flag:
+            sql = "select * from proxy_freeproxylists where kxflag='%s'" % flag
         else:
             sql = "select * from proxy_hidemyass where type='HTTP' and length(kxflag) = 0"
         result_set = self.db_conn.QueryDict(sql)
@@ -98,12 +100,14 @@ class ProxyVerifier(CommonHandler):
             logging.info(sql)
             self.db_conn.Execute(sql)
 
-    def do_free_proxy_list(self):
+    def do_free_proxy_list(self, flag=None):
         sql = "update proxy_free_proxy_list set kxflag='bad' where kxflag='' and https='yes'"
         self.db_conn.Execute(sql)
 
         if self.opt.flag:
             sql = "select * from proxy_free_proxy_list where https='no' and kxflag = '%s'" % self.opt.flag
+        elif flag:
+            sql = "select * from proxy_freeproxylists where kxflag='%s'" % flag
         else:
             sql = "select * from proxy_free_proxy_list where https='no' and length(kxflag) = 0"
         result_set = self.db_conn.QueryDict(sql)
@@ -116,9 +120,11 @@ class ProxyVerifier(CommonHandler):
             logging.info(sql)
             self.db_conn.Execute(sql)
 
-    def do_freeproxylists(self):
+    def do_freeproxylists(self, flag=None):
         if self.opt.flag:
             sql = "select * from proxy_freeproxylists where kxflag='%s'" % self.opt.flag
+        elif flag:
+            sql = "select * from proxy_freeproxylists where kxflag='%s'" % flag
         else:
             sql = "select * from proxy_freeproxylists where length(kxflag) = 0"
         result_set = self.db_conn.QueryDict(sql)
