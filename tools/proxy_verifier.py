@@ -50,6 +50,9 @@ class ProxyVerifier(CommonHandler):
             return 'bad'
 
         tmp_proxy = "http://%s:%s" % (ip, port)
+        return self._real_verify(tmp_proxy)
+
+    def _real_verify(self, tmp_proxy):
         proxy_support = urllib2.ProxyHandler({'http': tmp_proxy})
         opener =urllib2.build_opener(proxy_support, urllib2.HTTPCookieProcessor(cookielib.CookieJar()))
         opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:25.0) Gecko/20100101 Firefox/25.0')]
@@ -77,7 +80,7 @@ class ProxyVerifier(CommonHandler):
             kxflag = 'moderate'
         else:
             kxflag = 'good'
-        logging.info("ip: %s, port: %s, succeed_count: %d" % (ip, port, succeed_count))
+        logging.info("proxy: %s, succeed_count: %d" % (tmp_proxy, succeed_count))
         return kxflag
 
     def do_hidemyass(self, flag=None):
@@ -188,6 +191,11 @@ class ProxyVerifier(CommonHandler):
             self.do_free_proxy_list()
         if self.opt.freeproxylists:
             self.do_freeproxylists()
+
+    def test(self):
+        proxy_list = ['http://140.120.94.26:8088', 'http://181.208.70.75:8080']
+        for proxy in proxy_list:
+            self._real_verify(proxy)
 
 if __name__ == '__main__':
     btlog_init('log_verifier.log', logfile=True, console=True, level='DEBUG')
