@@ -1,7 +1,7 @@
 DB_CONF = {
-    "host"  : "192.168.0.57",
-    "user"  : "product_w",
-    "passwd": "kooxootest",
+    "host"  : "60.28.205.233",
+    "user"  : "proxy_w",
+    "passwd": "proxy@KX0528",
     "database"  : "proxy",
     "port"      : 3306,
     "charset"   : "utf8"
