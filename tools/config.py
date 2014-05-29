@@ -7,6 +7,9 @@ DB_CONF = {
     "charset"   : "utf8"
 }
 
+
+
+
 '''
 drop table if exists proxy_hidemyass;
 create table proxy_hidemyass (

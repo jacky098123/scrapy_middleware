@@ -29,7 +29,7 @@ class ProxyDownloader(CommonHandler):
 
         parser          = OptionParser()
         parser.add_option("--proxy", action="store", default="http://127.0.0.1:8087")
-        parser.add_option("--try_times", action="store", default="8")
+        parser.add_option("--try_times", action="store", default="10")
         parser.add_option("--cache", action="store_true")
         (self.opt, others) = parser.parse_args()
 
@@ -71,7 +71,7 @@ class ProxyDownloader(CommonHandler):
                 url     = url,
                 headers = {'Content-Type':'application/x-www-form-urlencoded','charset':'UTF-8',
                         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0',
-                        'Cookie': "hl=en; pv=9; userno=20140425-010621; from=direct; visited=2014%2F05%2F04+10%3A34%3A37; __utma=251962462.1210625505.1398409158.1398664990.1399167297.3; __utmz=251962462.1398409158.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __atuvc=1%7C17%2C4%7C18%2C4%7C19; __utmv=251962462.United%20States; __utmb=251962462.8.10.1399167297; __utmc=251962462",
+                        'Cookie': "hl=en; pv=26; userno=20140425-010621; from=direct; visited=2014%2F05%2F26+12%3A25%3A24; __utma=251962462.1210625505.1398409158.1400722703.1401074726.9; __utmz=251962462.1400037561.6.2.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); __atuvc=4%7C18%2C12%7C19%2C6%7C20%2C3%7C21%2C2%7C22; __utmv=251962462.United%20States; __utmb=251962462.4.10.1401074726; __utmc=251962462",
                 }
             )
 
@@ -93,9 +93,9 @@ class ProxyDownloader(CommonHandler):
         return content
 
     def do_freeproxylists(self):
-        for idx in range(20):
-#        for idx in (1,):
-            url = "http://www.freeproxylists.net/?pr=HTTP&page=%d" % (idx+1)
+        for idx in range(1,21):
+#        for idx in (9,11):
+            url = "http://www.freeproxylists.net/?pr=HTTP&page=%d" % (idx)
             logging.info("crawling: %s" % url)
             if self.opt.cache:
                 content = self.LoadFile(self._url2file(url))

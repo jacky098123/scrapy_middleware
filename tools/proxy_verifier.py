@@ -84,13 +84,13 @@ class ProxyVerifier(CommonHandler):
         return kxflag
 
     def do_hidemyass(self, flag=None):
-        sql = "update proxy_hidemyass set kxflag='bad' where kxflag='' and type <> 'HTTP' "
+        sql = "update proxy_hidemyass set kxflag='bad' where  type <> 'HTTP' "
         self.db_conn.Execute(sql)
 
         if self.opt.flag:
             sql = "select * from proxy_hidemyass where type='HTTP' and kxflag = '%s'" % self.opt.flag
         elif flag:
-            sql = "select * from proxy_freeproxylists where kxflag='%s'" % flag
+            sql = "select * from proxy_freeproxylists where type='HTTP' and kxflag='%s'" % flag
         else:
             sql = "select * from proxy_hidemyass where type='HTTP' and length(kxflag) = 0"
         result_set = self.db_conn.QueryDict(sql)
@@ -104,13 +104,13 @@ class ProxyVerifier(CommonHandler):
             self.db_conn.Execute(sql)
 
     def do_free_proxy_list(self, flag=None):
-        sql = "update proxy_free_proxy_list set kxflag='bad' where kxflag='' and https='yes'"
+        sql = "update proxy_free_proxy_list set kxflag='bad' where https='yes'"
         self.db_conn.Execute(sql)
 
         if self.opt.flag:
             sql = "select * from proxy_free_proxy_list where https='no' and kxflag = '%s'" % self.opt.flag
         elif flag:
-            sql = "select * from proxy_freeproxylists where kxflag='%s'" % flag
+            sql = "select * from proxy_freeproxylists where https='no' and kxflag='%s'" % flag
         else:
             sql = "select * from proxy_free_proxy_list where https='no' and length(kxflag) = 0"
         result_set = self.db_conn.QueryDict(sql)
@@ -154,7 +154,7 @@ class ProxyVerifier(CommonHandler):
             proxy_list = [i[0] for i in result_set]
 
             # free_proxy_list
-            sql = "select concat('http://', ip, ':', port) from proxy_free_proxy_list where kxflag = '%s'" % kxflag
+            sql = "select concat('http://', ip, ':', port) from proxy_free_proxy_list where kxflag = '%s' " % kxflag
             result_set = self.db_conn.Query(sql)
             logging.info(sql)
             logging.info("result_set len: %d" % len(result_set))
