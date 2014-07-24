@@ -11,6 +11,14 @@ import traceback
 from optparse import OptionParser
 from datetime import datetime
 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.proxy import Proxy
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
+from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
+
+
 from scrapy.selector import HtmlXPathSelector
 from bs4 import BeautifulSoup
 
@@ -39,8 +47,7 @@ class ProxyDownloader(CommonHandler):
 
         if self.opt.proxy:
             proxy_support = urllib2.ProxyHandler({'http':self.opt.proxy})
-            opener =urllib2.build_opener(urllib2.HTTPCookieProcessor(cookielib.CookieJar()))
-#            opener =urllib2.build_opener(proxy_support, urllib2.HTTPCookieProcessor(cookielib.CookieJar()))
+            opener =urllib2.build_opener(proxy_support, urllib2.HTTPCookieProcessor(cookielib.CookieJar()))
             opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:25.0) Gecko/20100101 Firefox/25.0')]
             urllib2.install_opener(opener)
 
@@ -72,7 +79,7 @@ class ProxyDownloader(CommonHandler):
                 url     = url,
                 headers = {'Content-Type':'application/x-www-form-urlencoded','charset':'UTF-8',
                         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0',
-                        'Cookie': "hl=en; pv=13; userno=20140612-008286; from=link; refdomain=www.freeproxylists.net; visited=2014%2F07%2F23+11%3A10%3A52; __utma=251962462.1500679984.1402553631.1403340752.1406081456.6; __utmz=251962462.1402553631.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __utmv=251962462.China; __atuvc=0%7C26%2C0%7C27%2C0%7C28%2C0%7C29%2C2%7C30; __utmb=251962462.2.10.1406081456; __utmc=251962462",
+                        'Cookie': "hl=en; pv=26; userno=20140425-010621; from=direct; visited=2014%2F05%2F26+12%3A25%3A24; __utma=251962462.1210625505.1398409158.1400722703.1401074726.9; __utmz=251962462.1400037561.6.2.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); __atuvc=4%7C18%2C12%7C19%2C6%7C20%2C3%7C21%2C2%7C22; __utmv=251962462.United%20States; __utmb=251962462.4.10.1401074726; __utmc=251962462",
                 }
             )
 
@@ -93,7 +100,31 @@ class ProxyDownloader(CommonHandler):
             logging.info("save to %s" % f)
         return content
 
+    def _selenium_crawl_url(self, url):
+        logging.info("_selenium_crawl_url")
+        content = ""
+        profile = webdriver.FirefoxProfile()
+        proxy = Proxy({'httpProxy': '127.0.0.1:8087'})
+        profile.set_proxy(proxy)
+        driver = webdriver.Firefox(profile)
+        driver.get(url)
+        try:
+            element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "fb-root")))
+            content = driver.page_source
+            content = content.encode('utf8', 'ignore')
+        except Exception, e:
+            logging.warn("exception: %s" % str(e))
+        finally:
+            driver.quit()
+
+        if len(content) > 0:
+            f = self._url2file(url)
+            self.SaveFile(f, content)
+            logging.info("save to %s" % f)
+        return content
+
     def do_freeproxylists(self):
+#        self._selenium_crawl_url('http://20140507.ip138.com/ic.asp')
         for idx in range(1,21):
 #        for idx in (9,11):
             url = "http://www.freeproxylists.net/?pr=HTTP&page=%d" % (idx)
@@ -101,7 +132,7 @@ class ProxyDownloader(CommonHandler):
             if self.opt.cache:
                 content = self.LoadFile(self._url2file(url))
             else:
-                content = self._crawl_url(url) # head has cookies
+                content = self._selenium_crawl_url(url) # head has cookies
             self.parse(content)
 
     def parse(self, content):

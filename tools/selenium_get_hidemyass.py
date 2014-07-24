@@ -10,6 +10,12 @@ import traceback
 from optparse import OptionParser
 from datetime import datetime
 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
+from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
+
 from scrapy.selector import HtmlXPathSelector
 from bs4 import BeautifulSoup
 
@@ -82,6 +88,33 @@ class ProxyDownloader(CommonHandler):
             logging.info("save to %s" % f)
         return content
 
+    def _selenium_crawl_url(self, url):
+        logging.info("_selenium_crawl_url")
+        content = ""
+        '''
+        driver = webdriver.Firefox()
+        driver.implicitly_wait(10)
+        driver.get(url)
+        content = driver.page_source
+        content = content.encode('utf8', 'ignore')
+        driver.quit()
+        '''
+        driver = webdriver.Firefox()
+        driver.get(url)
+        try:
+            element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "listtable")))
+            content = driver.page_source
+            content = content.encode('utf8', 'ignore')
+        except Exception, e:
+            logging.warn("exception: %s" % str(e))
+        finally:
+            driver.quit()
+
+        if len(content) > 0:
+            f = self._url2file(url)
+            self.SaveFile(f, content)
+            logging.info("save to %s" % f)
+        return content
 
     def _parse_hidemyass(self, html_data):
         def parse_style(html):
@@ -117,6 +150,8 @@ class ProxyDownloader(CommonHandler):
 
         selector = HtmlXPathSelector(text=html_data)
         tr_selector_list = selector.select('//table[@id="listtable"]/tr')
+        if len(tr_selector_list) == 0:
+            tr_selector_list = selector.select('//table[@id="listtable"]/tbody/tr')
 
         proxy_list = []
         for tr_selector in tr_selector_list:
@@ -148,7 +183,7 @@ class ProxyDownloader(CommonHandler):
             if os.access(file_name, os.F_OK):
                 html_data = self.LoadFile(file_name)
         if len(html_data) == 0:
-            html_data = self._crawl_url(url)
+            html_data = self._selenium_crawl_url(url)
 
         if html_data <= 100:
             logging.warn("html_data length too short: %d" % len(html_data))
@@ -189,6 +224,12 @@ class ProxyDownloader(CommonHandler):
 
     def run(self):
         self.do_hidemyass()
+
+    def test(self):
+        c = self.LoadFile("cache/8024ef3ca080b74ab57cb5ef36562e5d.html")
+        p = self._parse_hidemyass(c)
+        print p
+        
 
 if __name__ == '__main__':
     btlog_init('log_download.log', logfile=True, console=True)
