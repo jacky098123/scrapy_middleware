@@ -6,7 +6,7 @@ export PATH=/usr/local/bin:$PATH
 #python proxy_verifier.py --gen > /dev/null 2>&1
 python get_hidemyass.py > /dev/null 2>&1
 python get_free_proxy_list.py > /dev/null 2>&1
-python get_freeproxylists.py > /dev/null 2>&1
+#python get_freeproxylists.py > /dev/null 2>&1
 
 # verifier
 python proxy_verifier.py --hidemyass  > /dev/null 2>&1  &

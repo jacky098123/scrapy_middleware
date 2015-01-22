@@ -39,8 +39,7 @@ class ProxyDownloader(CommonHandler):
 
         if self.opt.proxy:
             proxy_support = urllib2.ProxyHandler({'http':self.opt.proxy})
-            opener =urllib2.build_opener(urllib2.HTTPCookieProcessor(cookielib.CookieJar()))
-#            opener =urllib2.build_opener(proxy_support, urllib2.HTTPCookieProcessor(cookielib.CookieJar()))
+            opener =urllib2.build_opener(proxy_support, urllib2.HTTPCookieProcessor(cookielib.CookieJar()))
             opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:25.0) Gecko/20100101 Firefox/25.0')]
             urllib2.install_opener(opener)
 
@@ -72,7 +71,7 @@ class ProxyDownloader(CommonHandler):
                 url     = url,
                 headers = {'Content-Type':'application/x-www-form-urlencoded','charset':'UTF-8',
                         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0',
-                        'Cookie': "hl=en; pv=13; userno=20140612-008286; from=link; refdomain=www.freeproxylists.net; visited=2014%2F07%2F23+11%3A10%3A52; __utma=251962462.1500679984.1402553631.1403340752.1406081456.6; __utmz=251962462.1402553631.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __utmv=251962462.China; __atuvc=0%7C26%2C0%7C27%2C0%7C28%2C0%7C29%2C2%7C30; __utmb=251962462.2.10.1406081456; __utmc=251962462",
+                        'Cookie': "hl=en; expires=Fri, 18-Sep-2015 02:13:30 GMT; path=/ campaign=deleted; expires=Tue, 17-Sep-2013 02:13:29 GMT; path=/ query=deleted; expires=Tue, 17-Sep-2013 02:13:29 GMT; path=/ admin=deleted; expires=Tue, 17-Sep-2013 02:13:29 GMT; path=/ pv=48; expires=Fri, 18-Sep-2015 02:13:30 GMT; path=/ userno=20140612-008286; expires=Fri, 18-Sep-2015 02:13:30 GMT; path=/ from=link; expires=Fri, 18-Sep-2015 02:13:30 GMT; path=/ refdomain=www.freeproxylists.net; expires=Fri, 18-Sep-2015 02:13:30 GMT; path=/",
                 }
             )
 
@@ -92,6 +91,12 @@ class ProxyDownloader(CommonHandler):
             self.SaveFile(f, content)
             logging.info("save to %s" % f)
         return content
+
+    def do_freeproxylists_by_file(self):
+        for idx in range(1,13):
+            file_name = "./cache/%d.html" % idx
+            content = self.LoadFile(file_name)
+            self.parse(content)
 
     def do_freeproxylists(self):
         for idx in range(1,21):
@@ -173,7 +178,8 @@ class ProxyDownloader(CommonHandler):
                 self.db_conn.Upsert('proxy_freeproxylists', db_data, ['ip','port'])
 
     def run(self):
-        self.do_freeproxylists()
+#        self.do_freeproxylists()
+        self.do_freeproxylists_by_file()
 
 if __name__ == '__main__':
     btlog_init('log_download.log', logfile=True, console=True)

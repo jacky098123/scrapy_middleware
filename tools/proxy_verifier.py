@@ -1,3 +1,5 @@
+# coding: utf8
+
 import os
 import sys
 import re
@@ -17,9 +19,7 @@ from utils.common_handler import CommonHandler
 from utils.btlog import btlog_init
 from db.mysqlv6 import MySQLOperator
 
-from baidu_common import BaiduCommon
 from config import *
-
 
 class ProxyVerifier(CommonHandler):
     def __init__(self):
@@ -62,12 +62,11 @@ class ProxyVerifier(CommonHandler):
         for i in range(10):
             time.sleep(0.2)
             try:
-                url = BaiduCommon.random_request()
+                url = "http://www.baidu.com"
                 print url
-                html = urllib2.urlopen(url, timeout=3).read()
+                html = urllib2.urlopen(url, timeout=6).read()
                 if len(html) > 100:
-                    parse_dict = BaiduCommon.parse(html)
-                    if parse_dict['valid_flag']:
+                    if html.find("ICP证030173号") >= 0:
                         succeed_count += 1
             except Exception, e:
                 logging.warn("error: %s" % str(e))
@@ -193,7 +192,7 @@ class ProxyVerifier(CommonHandler):
             self.do_freeproxylists()
 
     def test(self):
-        proxy_list = ['http://140.120.94.26:8088', 'http://181.208.70.75:8080']
+        proxy_list = ['http://127.0.0.1:8087', 'http://181.208.70.75:8080']
         for proxy in proxy_list:
             self._real_verify(proxy)
 

@@ -46,7 +46,6 @@ class ProxyDownloader(CommonHandler):
             logging.error("db error")
             sys.exit()
 
-
     def _url2file(self, url, suffix='html'):
         import hashlib
         m = hashlib.md5()
