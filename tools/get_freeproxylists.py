@@ -109,6 +109,17 @@ class ProxyDownloader(CommonHandler):
                 content = self._crawl_url(url) # head has cookies
             self.parse(content)
 
+    def strip_tags(self, html_content):
+        html_content = re.sub(r"(?i)<script[^>]*?>.*?</script>", "", html_content)
+        html_content = re.sub(r"<[^>]*?>", "", html_content)
+        pos = html_content.find(">")
+        if pos >= 0:
+            html_content = html_content[pos+1:]
+        pos = html_content.find("<")
+        if pos > 0:
+            html_content = html_content[:pos]
+        return html_content
+
     def parse(self, content):
         if len(content) == 0:
             logging.warn("content is empty")
@@ -143,6 +154,8 @@ class ProxyDownloader(CommonHandler):
                         ip_contents = self.RE.findall(ip_texts[0])
                         if len(ip_contents) > 0:
                             proxy_dict['ip']    = urllib.unquote(ip_contents[0].strip("\""))
+                            proxy_dict['ip']    = self.strip_tags(proxy_dict['ip'])
+
                 elif td_idx == 1:
                     proxy_dict['port']      = td_selector.select('.//text()').extract()
                 elif td_idx == 2:

@@ -62,7 +62,9 @@ class ProxyDownloader(CommonHandler):
         content = ""
         request = urllib2.Request(
                 url     = url,
-                headers = {'Content-Type':'application/x-www-form-urlencoded','charset':'UTF-8'}
+                headers = {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
+                            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:34.0) Gecko/20100101 Firefox/34.0"
+                }
             )
 
         for i in range(int(self.opt.try_times)):
@@ -116,7 +118,7 @@ class ProxyDownloader(CommonHandler):
         logging.info("parse html_data len: %d" % len(html_data))
 
         selector = HtmlXPathSelector(text=html_data)
-        tr_selector_list = selector.select('//table[@id="listtable"]/tr')
+        tr_selector_list = selector.select('.//table[@id="listable"]/tbody/tr')
 
         proxy_list = []
         for tr_selector in tr_selector_list:
@@ -166,16 +168,16 @@ class ProxyDownloader(CommonHandler):
 
     def do_hidemyass(self):
         url_list = [
-            "http://hidemyass.com/proxy-list/1",
-            "http://hidemyass.com/proxy-list/2",
-            "http://hidemyass.com/proxy-list/3",
-            "http://hidemyass.com/proxy-list/4",
-            "http://hidemyass.com/proxy-list/5",
-            "http://hidemyass.com/proxy-list/6",
-            "http://hidemyass.com/proxy-list/7",
-            "http://hidemyass.com/proxy-list/8",
-            "http://hidemyass.com/proxy-list/9",
-            "http://hidemyass.com/proxy-list/10",
+            "http://proxylist.hidemyass.com/1",
+            "http://proxylist.hidemyass.com/2",
+            "http://proxylist.hidemyass.com/3",
+            "http://proxylist.hidemyass.com/4",
+            "http://proxylist.hidemyass.com/5",
+            "http://proxylist.hidemyass.com/6",
+            "http://proxylist.hidemyass.com/7",
+            "http://proxylist.hidemyass.com/8",
+            "http://proxylist.hidemyass.com/9",
+            "http://proxylist.hidemyass.com/10",
         ]
         for url in url_list:
             proxy_list = self.do_url(url, self._parse_hidemyass)
@@ -186,11 +188,10 @@ class ProxyDownloader(CommonHandler):
                 proxy['create_time']    = datetime.now()
                 self.db_conn.Upsert('proxy_hidemyass', proxy, ['ip', 'port'])
 
-
     def run(self):
         self.do_hidemyass()
 
 if __name__ == '__main__':
-    btlog_init('log_download.log', logfile=True, console=True)
+    btlog_init('log_download.log', logfile=True, console=True, level='DEBUG')
     d = ProxyDownloader()
     d.run()
