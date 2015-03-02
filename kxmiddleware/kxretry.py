@@ -22,11 +22,8 @@ class KxRetryMiddleware(RetryMiddleware):
             return response
 
         if response.status != 200:
-            if 'retry_middleware' in request.meta:
-                request.meta['retry_middleware'] += 1
-            else:
-                request.meta['retry_middleware'] = 1
-            if request.meta['retry_middleware'] > 4:
+            retry_times = request.meta.get('retry_times',0)
+            if retry_times >= self.max_retry_times:
                 response.status = 200
                 return response
 
