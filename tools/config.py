@@ -1,5 +1,5 @@
 DB_CONF = {
-    "host"  : "60.28.205.233",
+    "host"  : "",
     "user"  : "proxy_w",
     "passwd": "proxy@KX0528",
     "database"  : "proxy",
